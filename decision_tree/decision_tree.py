@@ -36,67 +36,138 @@ class Node(object):
         self.decision = positive
 
 
-class DataSet(object):
-    """
-    Use to manage data set and extract data set.
-    """
-    def __init__(self):
-        self.positive = []
-        self.negative = []
+# class DataSet(object):
+#     """
+#     Use to manage data set and extract data set.
+#     """
+#     def __init__(self):
+#         self.positive = []
+#         self.negative = []
+#
+#     def readdata(self):
+#         self.positive = [
+#             [0, 0, 0, 0, 0, 0],
+#             [1, 0, 1, 0, 0, 0],
+#             [1, 0, 0, 0, 0, 0],
+#             [0, 0, 1, 0, 0, 0],
+#             [2, 0, 0, 0, 1, 0],
+#             [0, 1, 0, 0, 1, 1],
+#             [1, 1, 0, 1, 1, 1],
+#             [1, 1, 0, 0, 1, 0]
+#         ]
+#         self.negative = [
+#             [1, 1, 1, 1, 1, 0],
+#             [0, 2, 2, 0, 2, 1],
+#             [2, 2, 2, 2, 2, 0],
+#             [2, 1, 0, 2, 2, 1],
+#             [0, 1, 0, 1, 0, 0],
+#             [2, 1, 1, 1, 0, 0],
+#             [1, 1, 0, 0, 1, 1],
+#             [2, 0, 0, 2, 2, 0],
+#             [0, 0, 1, 1, 1, 0]
+#         ]
+#
+#     def empty(self):
+#         """
+#         Check whether data set is empty.
+#         :return: bool
+#         """
+#         if len(self.positive) == 0 and len(self.negative) == 0:
+#             return True
+#         return False
+#
+#     def filterdata(self, ai, val):
+#         """
+#         Extract row data and return new data set
+#         :param ai: int
+#         :param val: int
+#         :return: DataSet()
+#         """
+#         data_v = DataSet()
+#         data_v.positive = [x for x in self.positive if x[ai] == val]
+#         data_v.negative = [x for x in self.negative if x[ai] == val]
+#         return data_v
+#
+#     def mark_most(self):
+#         if self.empty():
+#             return None
+#         if len(self.positive) >= len(self.negative):
+#             return  True
+#         return False
 
-        # self.readdata()
 
-    def readdata(self):
-        self.positive = [
-            [0, 0, 0, 0, 0, 0],
-            [1, 0, 1, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0],
-            [2, 0, 0, 0, 1, 0],
-            [0, 1, 0, 0, 1, 1],
-            [1, 1, 0, 1, 1, 1],
-            [1, 1, 0, 0, 1, 0]
-        ]
-        self.negative = [
-            [1, 1, 1, 1, 1, 0],
-            [0, 2, 2, 0, 2, 1],
-            [2, 2, 2, 2, 2, 0],
-            [2, 1, 0, 2, 2, 1],
-            [0, 1, 0, 1, 0, 0],
-            [2, 1, 1, 1, 0, 0],
-            [1, 1, 0, 0, 1, 1],
-            [2, 0, 0, 2, 2, 0],
-            [0, 0, 1, 1, 1, 0]
-        ]
+class Data(object):
+    def __init__(self, data_set, y, idx):
+        """
+        :param data_set: List(List(int))
+        :param y: List(int)
+        :param idx: List(int)
+        """
+        self.data = data_set
+        self.y = y
+        self.idx = idx
+
+    def filter(self, ai, val):
+        """
+        :param ai: int
+        :param val: int
+        :return: Data()
+        """
+        filter_idx = [x for x in self.idx if self.data[x][ai] == val]
+        return Data(self.data, self.y, filter_idx)
+
+    def get_filter_idx(self, ai, av):
+        """
+        :param ai: int
+        :param av: int
+        :return: List(int)
+        """
+        return [x for x in self.idx if self.data[x][ai] == av]
 
     def empty(self):
-        """
-        Check whether data set is empty.
-        :return: bool
-        """
-        if len(self.positive) == 0 and len(self.negative) == 0:
+        if len(self.idx) == 0:
             return True
         return False
 
-    def filterdata(self, ai, val):
+    def is_positive(self):
+        if len(self.idx) == sum([self.y[i] for i in self.idx]):
+            return True
+        return False
+
+    def is_negative(self):
+        if sum([self.y[i] for i in self.idx]) == 0:
+            return True
+        return False
+
+    def num_positive(self):
         """
-        Extract row data and return new data set
-        :param ai: int
-        :param val: int
-        :return: DataSet()
+        :return: int
         """
-        data_v = DataSet()
-        data_v.positive = [x for x in self.positive if x[ai] == val]
-        data_v.negative = [x for x in self.negative if x[ai] == val]
-        return data_v
+        return sum([self.y[i] for i in self.idx])
+
+    def num_positive_v(self, ai, av):
+        filter_list = [x for x in self.idx if self.data[x][ai] == av]
+        return sum([self.y[i] for i in filter_list])
+
+    def num_negative(self):
+        """
+        :return: int
+        """
+        return len(self.idx) - sum([self.y[i] for i in self.idx])
+
+    def num_negative_v(self, ai, av):
+        filter_list = [x for x in self.idx if self.data[x][ai] == av]
+        return len(filter_list) - sum([self.y[i] for i in filter_list])
 
     def mark_most(self):
         if self.empty():
             return None
-        if len(self.positive) >= len(self.negative):
-            return  True
+        num_pos = sum([self.y[i] for i in self.idx])
+        num_neg = len(self.idx) - num_pos
+        # print("num_pos: %d, num_neg: %d" %(num_pos, num_neg))
+        if num_pos >= num_neg:
+            return True
         return False
-
 
 class Decisiontree(object):
     """
@@ -106,22 +177,22 @@ class Decisiontree(object):
         self.attri_list = attri_list
 
     def find_best(self, data, attri_set):
-        best = attri_set.pop()
+        best = list(attri_set)[0]
         return best
 
     def tree_gen(self, data, attri_set):
         """
-        :param data_set: DataSet()
+        :param data_set: Data()
         :param attri_set: set()
         :return:
         """
         newNode = Node()
         # If data set is already classified.
-        if len(data.positive) == 0:
-            newNode.set_leaf(False)
-            return newNode
-        elif len(data.negative) == 0:
+        if data.is_positive():
             newNode.set_leaf(True)
+            return newNode
+        elif data.is_negative():
+            newNode.set_leaf(False)
             return newNode
 
         # If attribute set is empty.
@@ -142,8 +213,7 @@ class Decisiontree(object):
         new_attri_set.remove(choice)
 
         for val in self.attri_list[choice]:
-            data_v = data.filterdata(choice, val)
-            # print data_v.positive, data_v.negative
+            data_v = data.filter(choice, val)
             if data_v.empty():
                 childNode = Node()
                 childNode.set_leaf(data.mark_most())  # set parent's most
@@ -156,9 +226,6 @@ class Decisiontree(object):
 
 
 if __name__ == '__main__':
-    data = DataSet()
-    data.readdata()
-
     attri_set = set([COLOR, ROOT, SOUND, TEXTURE, NAVEL, TOUCH])
     attri_list = {
         COLOR: [0, 1, 2],
@@ -168,6 +235,31 @@ if __name__ == '__main__':
         NAVEL: [0, 1, 2],
         TOUCH: [0, 1]
     }
+
+    data_set = [
+        [0, 0, 0, 0, 0, 0],
+        [1, 0, 1, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0],
+        [2, 0, 0, 0, 1, 0],
+        [0, 1, 0, 0, 1, 1],
+        [1, 1, 0, 1, 1, 1],
+        [1, 1, 0, 0, 1, 0],
+        [1, 1, 1, 1, 1, 0],
+        [0, 2, 2, 0, 2, 1],
+        [2, 2, 2, 2, 2, 0],
+        [2, 1, 0, 2, 2, 1],
+        [0, 1, 0, 1, 0, 0],
+        [2, 1, 1, 1, 0, 0],
+        [1, 1, 0, 0, 1, 1],
+        [2, 0, 0, 2, 2, 0],
+        [0, 0, 1, 1, 1, 0]
+    ]
+    y = [1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0]
+    idx = [i for i in xrange(len(y))]
+
+    data = Data(data_set, y, idx)
+
     d = Decisiontree(attri_list)
     root = d.tree_gen(data, attri_set)
 
