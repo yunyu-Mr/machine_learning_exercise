@@ -1,22 +1,26 @@
 COLOR = 0
-ROOT  = 1
+ROOT = 1
 SOUND = 2
 TEXTURE = 3
 NAVEL = 4
 TOUCH = 5
+DENSITY = 6
+SUGAR = 7
 
 
 from aenum import Enum
 from copy import deepcopy
-
+import numpy as np
 
 class Attribute(Enum):
     COLOR = 0
-    ROOT  = 1
+    ROOT = 1
     SOUND = 2
     TEXTURE = 3
     NAVEL = 4
     TOUCH = 5
+    DENSITY = 6
+    SUGAR = 7
 
 
 class Node(object):
@@ -96,7 +100,7 @@ class Node(object):
 #         return False
 
 
-class Data(object):
+class DataB(object):
     def __init__(self, data_set, y, idx):
         """
         :param data_set: List(List(int))
@@ -111,18 +115,10 @@ class Data(object):
         """
         :param ai: int
         :param val: int
-        :return: Data()
+        :return: DataB()
         """
         filter_idx = [x for x in self.idx if self.data[x][ai] == val]
-        return Data(self.data, self.y, filter_idx)
-
-    def get_filter_idx(self, ai, av):
-        """
-        :param ai: int
-        :param av: int
-        :return: List(int)
-        """
-        return [x for x in self.idx if self.data[x][ai] == av]
+        return DataB(self.data, self.y, filter_idx)
 
     def empty(self):
         if len(self.idx) == 0:
@@ -139,35 +135,16 @@ class Data(object):
             return True
         return False
 
-    def num_positive(self):
-        """
-        :return: int
-        """
-        return sum([self.y[i] for i in self.idx])
-
-    def num_positive_v(self, ai, av):
-        filter_list = [x for x in self.idx if self.data[x][ai] == av]
-        return sum([self.y[i] for i in filter_list])
-
-    def num_negative(self):
-        """
-        :return: int
-        """
-        return len(self.idx) - sum([self.y[i] for i in self.idx])
-
-    def num_negative_v(self, ai, av):
-        filter_list = [x for x in self.idx if self.data[x][ai] == av]
-        return len(filter_list) - sum([self.y[i] for i in filter_list])
-
     def mark_most(self):
         if self.empty():
             return None
         num_pos = sum([self.y[i] for i in self.idx])
         num_neg = len(self.idx) - num_pos
-        # print("num_pos: %d, num_neg: %d" %(num_pos, num_neg))
+        print("num_pos: %d, num_neg: %d" %(num_pos, num_neg))
         if num_pos >= num_neg:
             return True
         return False
+
 
 class Decisiontree(object):
     """
@@ -202,18 +179,18 @@ class Decisiontree(object):
             return newNode
 
         # Find a best decision attribute.
-        choice = self.find_best(data, attri_set)
+        choice, midpoint = self.find_best(data, attri_set)
         if choice == -1:
             print "error"
             return None
-        print "best choice:", Attribute(choice)
+        print "best choice:", Attribute(choice), midpoint
         newNode.attri = Attribute(choice)
 
         new_attri_set = deepcopy(attri_set)
         new_attri_set.remove(choice)
 
         for val in self.attri_list[choice]:
-            data_v = data.filter(choice, val)
+            data_v = data.filter(choice, val, midpoint=midpoint)
             if data_v.empty():
                 childNode = Node()
                 childNode.set_leaf(data.mark_most())  # set parent's most
@@ -236,7 +213,7 @@ if __name__ == '__main__':
         TOUCH: [0, 1]
     }
 
-    data_set = [
+    data_set = np.array([
         [0, 0, 0, 0, 0, 0],
         [1, 0, 1, 0, 0, 0],
         [1, 0, 0, 0, 0, 0],
@@ -254,11 +231,11 @@ if __name__ == '__main__':
         [1, 1, 0, 0, 1, 1],
         [2, 0, 0, 2, 2, 0],
         [0, 0, 1, 1, 1, 0]
-    ]
+    ], np.float16)
     y = [1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0]
     idx = [i for i in xrange(len(y))]
 
-    data = Data(data_set, y, idx)
+    data = DataB(data_set, y, idx)
 
     d = Decisiontree(attri_list)
     root = d.tree_gen(data, attri_set)
