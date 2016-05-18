@@ -12,6 +12,7 @@ from aenum import Enum
 from copy import deepcopy
 import numpy as np
 
+
 class Attribute(Enum):
     COLOR = 0
     ROOT = 1
@@ -24,12 +25,15 @@ class Attribute(Enum):
 
 
 class Node(object):
+    """
+    Tree node class.
+    """
     def __init__(self):
-        self.attri = None
-        self.isLeaf = False
-        self.decision = False
+        self.attri = None       # Internal node has attribute.
+        self.isLeaf = False     # Is leaf node or not ?
+        self.decision = False   # Final decision: T or F.
         self.parent = None
-        self.children = []
+        self.children = []  # A list store children.
 
     def set_leaf(self, positive):
         """
@@ -101,6 +105,9 @@ class Node(object):
 
 
 class DataB(object):
+    """
+    Data management base class.
+    """
     def __init__(self, data_set, y, idx):
         """
         :param data_set: List(List(int))
@@ -159,12 +166,15 @@ class Decisiontree(object):
 
     def tree_gen(self, data, attri_set):
         """
-        :param data_set: Data()
+        Recursive function use to generate decision tree.
+        :param data: DataB()
         :param attri_set: set()
         :return:
         """
+        # Create a new node.
         newNode = Node()
-        # If data set is already classified.
+
+        # If data set is already classified, return a leaf node.
         if data.is_positive():
             newNode.set_leaf(True)
             return newNode
@@ -172,13 +182,14 @@ class Decisiontree(object):
             newNode.set_leaf(False)
             return newNode
 
-        # If attribute set is empty.
+        # If attribute set is empty, can't be classified.
         if not attri_set:
             type = data.mark_most()
             newNode.set_leaf(type)
             return newNode
 
         # Find a best decision attribute.
+        # If it is a continuous attribute, it should have a best mid point.
         choice, midpoint = self.find_best(data, attri_set)
         if choice == -1:
             print "error"
@@ -186,16 +197,21 @@ class Decisiontree(object):
         print "best choice:", Attribute(choice), midpoint
         newNode.attri = Attribute(choice)
 
+        # Create a new attribute set,
+        # which doesn't contain the best choice just find.
         new_attri_set = deepcopy(attri_set)
         new_attri_set.remove(choice)
 
+        # Create branches.
         for val in self.attri_list[choice]:
             data_v = data.filter(choice, val, midpoint=midpoint)
             if data_v.empty():
+                # If branch has empty data, create a leaf child.
                 childNode = Node()
                 childNode.set_leaf(data.mark_most())  # set parent's most
                 newNode.children.append(childNode)
             else:
+                # Recursively generate decision child tree.
                 childNode = self.tree_gen(data_v, new_attri_set)
                 newNode.children.append(childNode)
 
