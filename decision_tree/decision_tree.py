@@ -44,66 +44,6 @@ class Node(object):
         self.decision = positive
 
 
-# class DataSet(object):
-#     """
-#     Use to manage data set and extract data set.
-#     """
-#     def __init__(self):
-#         self.positive = []
-#         self.negative = []
-#
-#     def readdata(self):
-#         self.positive = [
-#             [0, 0, 0, 0, 0, 0],
-#             [1, 0, 1, 0, 0, 0],
-#             [1, 0, 0, 0, 0, 0],
-#             [0, 0, 1, 0, 0, 0],
-#             [2, 0, 0, 0, 1, 0],
-#             [0, 1, 0, 0, 1, 1],
-#             [1, 1, 0, 1, 1, 1],
-#             [1, 1, 0, 0, 1, 0]
-#         ]
-#         self.negative = [
-#             [1, 1, 1, 1, 1, 0],
-#             [0, 2, 2, 0, 2, 1],
-#             [2, 2, 2, 2, 2, 0],
-#             [2, 1, 0, 2, 2, 1],
-#             [0, 1, 0, 1, 0, 0],
-#             [2, 1, 1, 1, 0, 0],
-#             [1, 1, 0, 0, 1, 1],
-#             [2, 0, 0, 2, 2, 0],
-#             [0, 0, 1, 1, 1, 0]
-#         ]
-#
-#     def empty(self):
-#         """
-#         Check whether data set is empty.
-#         :return: bool
-#         """
-#         if len(self.positive) == 0 and len(self.negative) == 0:
-#             return True
-#         return False
-#
-#     def filterdata(self, ai, val):
-#         """
-#         Extract row data and return new data set
-#         :param ai: int
-#         :param val: int
-#         :return: DataSet()
-#         """
-#         data_v = DataSet()
-#         data_v.positive = [x for x in self.positive if x[ai] == val]
-#         data_v.negative = [x for x in self.negative if x[ai] == val]
-#         return data_v
-#
-#     def mark_most(self):
-#         if self.empty():
-#             return None
-#         if len(self.positive) >= len(self.negative):
-#             return  True
-#         return False
-
-
 class DataB(object):
     """
     Data management base class.
@@ -147,7 +87,7 @@ class DataB(object):
             return None
         num_pos = sum([self.y[i] for i in self.idx])
         num_neg = len(self.idx) - num_pos
-        print("num_pos: %d, num_neg: %d" %(num_pos, num_neg))
+        # print("num_pos: %d, num_neg: %d" %(num_pos, num_neg))
         if num_pos >= num_neg:
             return True
         return False
